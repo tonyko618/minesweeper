@@ -1,3 +1,4 @@
+from logging import exception
 import numpy as np
 import random as rn
 import tkinter as tk
@@ -39,6 +40,7 @@ class MainWindow:
 
 class GameFrame:
     def __init__(self, master, width, height, BombNum):
+        print(self)
         self.mainFrame = tk.Toplevel(master=master)
         self.width = width
         self.height = height
@@ -52,47 +54,38 @@ class GameFrame:
                 self.__BombArray[i] = True
                 self.__BombLeft -= 1
 
-        self.__BombGrid = np.array(self.__BombArray).reshape(self.height, self.width)
-        print(self.__BombGrid)
+        self.__TFGrid = np.array(self.__BombArray).reshape(self.height, self.width)
+        print(self.__TFGrid)
 
         self.__CellGrid = []
         for i in range(self.height):
-            self.__CellGrid.append(Row(master=self.mainFrame, BombArray=self.__BombArray[self.width*i:self.width*(i+1)], grid=self.__BombGrid, y=i))
+            self.CellArray = []
+            self.frame = tk.Frame(master=self.mainFrame)
+            self.frame.pack()
+            for j in range(self.width):
+                self.CellArray.append(Cell(master=self.frame, grid=self.get, x=j, y=i, width=self.width, height=self.height))
+            self.__CellGrid.append(self.CellArray)
         
-        for row in self.__CellGrid:
-            row.CellReference(self.__CellGrid)
 
 
+    def get(self, x, y):
+        try:
+            return self.__CellGrid[y][x]
+        except:
+            class CellNotFound(exception):
+                pass
+            raise CellNotFound(f"The coordinate {(x,y)} is not found, the size of the grid is {(self.width+1,self.height+1)}")
 
 
-class Row:
-    def __init__(self, master, BombArray, grid, y):
-        self.master = master
-        self.BombArray = BombArray
-        self.grid = grid
-        self.y = y
-        self.length = len(self.BombArray)
-        self.frame = tk.Frame(master=self.master)
-        self.frame.pack()
-
-        self.CellArray = []
-        for i in range(self.length):
-            self.CellArray.append(Cell(master=self.frame, bomb=self.BombArray[i], grid=self.grid, x=i, y=self.y))
-    def __getitem__(self, num):
-        return self.CellArray[num]
-
-    def CellReference(self, cells):
-        self.cells = cells
-        for cell in self.CellArray:
-            cell.CellRef(self.cells)
 
 class Cell:
-    def __init__(self, master, bomb, grid, x, y):
+    def __init__(self, master, grid, x, y, width, height):
         self.master = master
-        self.bomb = bomb
         self.grid = grid
         self.x = x
         self.y = y
+        self.GridWidth = width
+        self.GridHeight = height
         self.flagged = False
         self.revealed = False
 
@@ -103,8 +96,7 @@ class Cell:
         self.button.bind("<Button-3>", self.RightClick)
         self.button.place(x=0, y=0, width=30, height=30)
 
-    def CellRef(self, cells):
-        self.cells = cells
+
     
     def LeftClick(self, event=0):
         if self.revealed:
@@ -119,9 +111,9 @@ class Cell:
             self.adj = 0
             for x in range(self.x-1, self.x+2):
                 for y in range(self.y-1, self.y+2):
-                    if x<0 or y<0 or y>=len(self.grid) or x>=len(self.grid[0]):
+                    if x<0 or y<0 or y>=self.GridHeight or x>=self.GridWidth:
                         continue
-                    if self.grid[y,x]:
+                    if self.grid(y,x):
                         self.adj += 1
   
             self.button["text"] = str(self.adj)
@@ -133,10 +125,17 @@ class Cell:
                         self.cells[y][x].LeftClick()   
 
     def RightClick(self, event):
+        if self.revealed:
+            return
         self.button["bg"] = "blue"
+    
+
 
 
 
 window = tk.Tk()
 MainWindow(window)
+def Click(event):
+    print(event)
+window.bind("<KeyRelease>",Click)
 window.mainloop()
