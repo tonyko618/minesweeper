@@ -5,7 +5,7 @@ import tkinter as tk
 
 class MainWindow:
     def __init__(self, master):
-        self.master=master
+        self.master = master
         self.mainFrame = tk.Frame(master=self.master)
         self.mainFrame.pack()
 
@@ -30,12 +30,11 @@ class MainWindow:
         self.BombLabel.pack(side=tk.LEFT)
         self.BombEntry.pack()
 
-        self.StartButton = tk.Button(master=self.mainFrame, text="Start", command=self.__ButtonClick)
+        self.StartButton = tk.Button(master=self.mainFrame, text="Start", command=self.ButtonClick)
         self.StartButton.pack()
     
-    def __ButtonClick(self):
+    def ButtonClick(self):
         GameFrame(self.master, int(self.WidthEntry.get()), int(self.HeightEntry.get()), int(self.BombEntry.get()))
-        #GameFrame(self.master,10,10,10)
         window.withdraw()
 
 class GameFrame:
