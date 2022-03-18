@@ -5,7 +5,7 @@ import tkinter as tk
 
 class MainWindow:
     def __init__(self, master):
-        self.master=master
+        self.master = master
         self.mainFrame = tk.Frame(master=self.master)
         self.mainFrame.pack()
 
@@ -62,7 +62,7 @@ class GameFrame:
             self.frame = tk.Frame(master=self.mainFrame)
             self.frame.pack()
             for j in range(self.width):
-                self.CellArray.append(Cell(master=self.frame, grid=self.get, x=j, y=i, width=self.width, height=self.height))
+                self.CellArray.append(Cell(master=self.frame, parent=self, x=j, y=i, bomb=self.TFGrid[i][j]))
             self.CellGrid.append(self.CellArray)
         
 
@@ -78,11 +78,12 @@ class GameFrame:
 
 
 class Cell:
-    def __init__(self, master, parent, x, y):
+    def __init__(self, master, parent, x, y, bomb):
         self.master = master
         self.parent = parent
         self.x = x
         self.y = y
+        self.bomb = bomb
         self.flagged = False
         self.revealed = False
 
