@@ -46,6 +46,7 @@ class GameFrame:
         self.BombNum = BombNum
         self.BombLeft = self.BombNum
         self.BombArray = [False]*(width*height)
+        self.SafeLeft = width*height-BombNum
         
 
         for i in range(len(self.BombArray)):
@@ -75,7 +76,10 @@ class GameFrame:
                 pass
             raise CellNotFound(f"The coordinate {(x,y)} is not found, the size of the grid is {(self.width+1,self.height+1)}")
 
-
+    def counter(self):
+        self.SafeLeft -= 1
+        if self.SafeLeft == 0:
+            print("you win")
 
 class Cell:
     def __init__(self, master, parent, x, y, bomb):
@@ -103,8 +107,8 @@ class Cell:
         return output
 
     
-    def LeftClick(self, event=0):
-        if self.revealed:
+    def LeftClick(self, *event):
+        if self.revealed or self.flagged:
             return
         else:
             self.revealed = True
@@ -112,6 +116,7 @@ class Cell:
         if self.bomb:
             self.button["bg"] = "red"
         else:
+            self.parent.counter()
             self.button["bg"] = "green"
             self.adj = 0
             for (x, y) in self.neighbour():
@@ -126,7 +131,12 @@ class Cell:
     def RightClick(self, event):
         if self.revealed:
             return
-        self.button["bg"] = "blue"
+        
+        if self.flagged:
+            self.button["bg"] = "white"
+        else:
+            self.button["bg"] = "blue"
+        self.flagged = not self.flagged
     
 
 
