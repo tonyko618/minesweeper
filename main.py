@@ -79,13 +79,11 @@ class GameFrame:
 
 
 class Cell:
-    def __init__(self, master, grid, x, y, width, height):
+    def __init__(self, master, parent, x, y):
         self.master = master
-        self.grid = grid
+        self.parent = parent
         self.x = x
         self.y = y
-        self.GridWidth = width
-        self.GridHeight = height
         self.flagged = False
         self.revealed = False
 
@@ -111,9 +109,9 @@ class Cell:
             self.adj = 0
             for x in range(self.x-1, self.x+2):
                 for y in range(self.y-1, self.y+2):
-                    if x<0 or y<0 or y>=self.GridHeight or x>=self.GridWidth:
+                    if x<0 or y<0 or y>=self.parent.height or x>=self.parent.width:
                         continue
-                    if self.grid(y,x):
+                    if self.parent.get(x,y).bomb:
                         self.adj += 1
   
             self.button["text"] = str(self.adj)
@@ -122,7 +120,7 @@ class Cell:
                     for y in range(self.y-1, self.y+2):
                         if x<0 or y<0 or y>=len(self.grid) or x>=len(self.grid[0]):
                             continue
-                        self.cells[y][x].LeftClick()   
+                        self.parent.get(x,y).LeftClick()  
 
     def RightClick(self, event):
         if self.revealed:
@@ -135,7 +133,4 @@ class Cell:
 
 window = tk.Tk()
 MainWindow(window)
-def Click(event):
-    print(event)
-window.bind("<KeyRelease>",Click)
 window.mainloop()
