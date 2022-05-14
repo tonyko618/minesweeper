@@ -6,7 +6,7 @@ import tkinter as tk
 class MainWindow:
     def __init__(self, master):
         self.master = master
-        self.mainFrame = tk.Frame(master=self.master)
+        self.mainFrame = tk.Frame(master=master)
         self.mainFrame.pack()
 
         self.WidthFrame = tk.Frame(master=self.mainFrame)
@@ -34,19 +34,59 @@ class MainWindow:
         self.StartButton.pack()
     
     def ButtonClick(self):
-        GameFrame(self.master, int(self.WidthEntry.get()), int(self.HeightEntry.get()), int(self.BombEntry.get()))
-        window.withdraw()
+        MineGridArgs = [int(self.WidthEntry.get()), int(self.HeightEntry.get()), int(self.BombEntry.get())]
+        GameFrame(self.mainFrame, self, MineGridArgs)
+        self.master.withdraw()
 
 class GameFrame:
-    def __init__(self, master, width, height, BombNum):
-        print(self)
+    def __init__(self, master, parent, MineGridArgs):
         self.mainFrame = tk.Toplevel(master=master)
+        self.parent = parent
+        self.MineGridArgs = MineGridArgs
+
+        self.InfoFrame = tk.Frame(master=self.mainFrame)
+        self.InfoFrame.pack(fill=tk.X)
+
+        self.BackButton = tk.Button(master=self.InfoFrame, text="Back", command=self.Back)
+        self.BackButton.pack(side=tk.LEFT)
+
+        self.RefreshButton = tk.Button(master=self.InfoFrame, text="Refresh", command=self.CreateMineGridFrame)
+        self.RefreshButton.pack(side=tk.RIGHT)
+
+        self.InfoLabel = tk.Label(master=self.InfoFrame, text=f"Bombs left: {MineGridArgs[2]}")
+        self.InfoLabel.pack(side=tk.TOP)
+
+        self.MineGridFrame = tk.Frame(master=self.mainFrame)
+        MineGrid(self.MineGridFrame, self, *self.MineGridArgs)
+        self.MineGridFrame.pack()
+
+    def CreateMineGridFrame(self):
+        self.InfoLabel["text"] = f"Bombs left: {self.MineGridArgs[2]}"
+        self.MineGridFrame.destroy()
+        self.MineGridFrame = tk.Frame(master=self.mainFrame)
+        MineGrid(self.MineGridFrame, self, *self.MineGridArgs)
+        self.MineGridFrame.pack()
+    
+    def Back(self):
+        self.parent.master.deiconify()
+        self.mainFrame.destroy()
+
+
+        
+
+
+class MineGrid:
+    def __init__(self, master, parent, width, height, BombNum):
+        self.mainFrame = tk.Frame(master=master)
+        self.mainFrame.pack()
+        self.parent = parent
         self.width = width
         self.height = height
         self.BombNum = BombNum
         self.BombLeft = self.BombNum
         self.BombArray = [False]*(width*height)
         self.SafeLeft = width*height-BombNum
+        self.MarkedBombNum = 0
         
 
         for i in range(len(self.BombArray)):
@@ -79,7 +119,8 @@ class GameFrame:
     def counter(self):
         self.SafeLeft -= 1
         if self.SafeLeft == 0:
-            print("you win")
+            print("You won!")
+            self.parent.InfoLabel = "You won!"
 
 class Cell:
     def __init__(self, master, parent, x, y, bomb):
@@ -131,12 +172,14 @@ class Cell:
     def RightClick(self, event):
         if self.revealed:
             return
-        
         if self.flagged:
-            self.button["bg"] = "white"
+            self.button["bg"] = "SystemButtonFace"
+            self.parent.MarkedBombNum -= 1
         else:
             self.button["bg"] = "blue"
+            self.parent.MarkedBombNum += 1
         self.flagged = not self.flagged
+        self.parent.parent.InfoLabel["text"] = f"Bombs left: {self.parent.BombNum - self.parent.MarkedBombNum}"
     
 
 
