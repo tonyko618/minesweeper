@@ -1,6 +1,7 @@
 import numpy as np
 import random as rn
 import tkinter as tk
+from solve import solve
 
 class MainWindow:
     def __init__(self, master):
@@ -75,9 +76,11 @@ class GameFrame:
         self.mainFrame.destroy()
 
     def Hint(self):
-        print(np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid]))
-        print(np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid]))
-        print(np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid]))
+        revealed = np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid])
+        flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
+        adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
+        risk = solve(revealed, flagged, adj)
+
         
 
 
