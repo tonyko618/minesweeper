@@ -120,7 +120,7 @@ class MineGrid:
         self.SafeLeft -= 1
         if self.SafeLeft == 0:
             print("You won!")
-            self.parent.InfoLabel = "You won!"
+            self.parent.InfoLabel["text"] = "You won!"
 
 class Cell:
     def __init__(self, master, parent, x, y, bomb):
