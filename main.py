@@ -1,4 +1,3 @@
-from logging import exception
 import numpy as np
 import random as rn
 import tkinter as tk
@@ -112,14 +111,13 @@ class MineGrid:
         try:
             return self.CellGrid[y][x]
         except:
-            class CellNotFound(exception):
+            class CellNotFound(Exception):
                 pass
-            raise CellNotFound(f"The coordinate {(x,y)} is not found, the size of the grid is {(self.width+1,self.height+1)}")
+            raise CellNotFound(f"The coordinate {(x,y)} is not found, the size of the grid is {(self.width,self.height)}")
 
     def counter(self):
         self.SafeLeft -= 1
         if self.SafeLeft == 0:
-            print("You won!")
             self.parent.InfoLabel["text"] = "You won!"
 
 class Cell:
@@ -156,6 +154,11 @@ class Cell:
 
         if self.bomb:
             self.button["bg"] = "red"
+            self.parent.parent.InfoLabel["text"] = "You lost!"
+            for x in range(self.parent.width):
+                for y in range(self.parent.height):
+                    if self.parent.get(x,y).bomb:
+                        self.parent.get(x,y).LeftClick()
         else:
             self.parent.counter()
             self.button["bg"] = "green"
