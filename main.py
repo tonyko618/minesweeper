@@ -45,30 +45,40 @@ class GameFrame:
 
         self.InfoFrame = tk.Frame(master=self.mainFrame)
         self.InfoFrame.pack(fill=tk.X)
-
         self.BackButton = tk.Button(master=self.InfoFrame, text="Back", command=self.Back)
         self.BackButton.pack(side=tk.LEFT)
-
         self.RefreshButton = tk.Button(master=self.InfoFrame, text="Refresh", command=self.CreateMineGridFrame)
         self.RefreshButton.pack(side=tk.RIGHT)
-
         self.InfoLabel = tk.Label(master=self.InfoFrame, text=f"Bombs left: {MineGridArgs[2]}")
         self.InfoLabel.pack(side=tk.TOP)
 
+
         self.MineGridFrame = tk.Frame(master=self.mainFrame)
-        MineGrid(self.MineGridFrame, self, *self.MineGridArgs)
+        self.MineGridSubFrame = tk.Frame(master=self.MineGridFrame)
+        self.MineGridInstance = MineGrid(self.MineGridSubFrame, self, *self.MineGridArgs)
         self.MineGridFrame.pack()
+        self.MineGridSubFrame.pack()
+
+        self.HintButton = tk.Button(master=self.mainFrame, text="Hint", command=self.Hint)
+        self.HintButton.pack()
+
 
     def CreateMineGridFrame(self):
         self.InfoLabel["text"] = f"Bombs left: {self.MineGridArgs[2]}"
-        self.MineGridFrame.destroy()
-        self.MineGridFrame = tk.Frame(master=self.mainFrame)
-        MineGrid(self.MineGridFrame, self, *self.MineGridArgs)
-        self.MineGridFrame.pack()
+        self.MineGridSubFrame.destroy()
+        self.MineGridSubFrame = tk.Frame(master=self.MineGridFrame)
+        self.MineGridInstance = MineGrid(self.MineGridSubFrame, self, *self.MineGridArgs)
+        self.MineGridSubFrame.pack()
     
     def Back(self):
         self.parent.master.deiconify()
         self.mainFrame.destroy()
+
+    def Hint(self):
+        print(np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid]))
+        print(np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid]))
+        print(np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid]))
+        
 
 
         
@@ -129,6 +139,7 @@ class Cell:
         self.bomb = bomb
         self.flagged = False
         self.revealed = False
+        self.adj = None
 
         self.frame = tk.Frame(master=self.master, width=30, height=30)
         self.frame.pack(side=tk.LEFT)
