@@ -35,14 +35,15 @@ class MainWindow:
     
     def ButtonClick(self):
         MineGridArgs = [int(self.WidthEntry.get()), int(self.HeightEntry.get()), int(self.BombEntry.get())]
-        GameFrame(self.mainFrame, self, MineGridArgs)
+        GameWindow(self.mainFrame, self, MineGridArgs)
         self.master.withdraw()
 
-class GameFrame:
+class GameWindow:
     def __init__(self, master, parent, MineGridArgs):
         self.mainFrame = tk.Toplevel(master=master)
         self.parent = parent
         self.MineGridArgs = MineGridArgs
+        self.mainFrame.protocol("WM_DELETE_WINDOW", self.Back)
 
         self.InfoFrame = tk.Frame(master=self.mainFrame)
         self.InfoFrame.pack(fill=tk.X)
@@ -79,7 +80,7 @@ class GameFrame:
         revealed = np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid])
         flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
         adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
-        risk = solve(revealed, flagged, adj)
+        risk = solve(self.MineGridArgs[2], revealed, flagged, adj)
 
         
 
