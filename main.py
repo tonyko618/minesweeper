@@ -170,10 +170,10 @@ class Cell:
         if self.bomb:
             self.button["bg"] = "red"
             self.parent.parent.InfoLabel["text"] = "You lost!"
-            for x in range(self.parent.width):
+            """for x in range(self.parent.width):
                 for y in range(self.parent.height):
                     if self.parent.get(x,y).bomb:
-                        self.parent.get(x,y).LeftClick()
+                        self.parent.get(x,y).LeftClick()"""
         else:
             self.parent.counter()
             self.button["bg"] = "green"
