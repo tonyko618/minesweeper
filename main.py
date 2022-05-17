@@ -115,6 +115,7 @@ class Cell:
 
         if self.bomb:
             self.button["bg"] = "red"
+            print("you lost")
         else:
             self.parent.counter()
             self.button["bg"] = "green"
