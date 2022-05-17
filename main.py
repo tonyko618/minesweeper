@@ -1,12 +1,12 @@
-from logging import exception
 import numpy as np
 import random as rn
 import tkinter as tk
+from solve import solve
 
 class MainWindow:
     def __init__(self, master):
         self.master = master
-        self.mainFrame = tk.Frame(master=self.master)
+        self.mainFrame = tk.Frame(master=master)
         self.mainFrame.pack()
 
         self.WidthFrame = tk.Frame(master=self.mainFrame)
@@ -34,19 +34,71 @@ class MainWindow:
         self.StartButton.pack()
     
     def ButtonClick(self):
-        GameFrame(self.master, int(self.WidthEntry.get()), int(self.HeightEntry.get()), int(self.BombEntry.get()))
-        window.withdraw()
+        MineGridArgs = [int(self.WidthEntry.get()), int(self.HeightEntry.get()), int(self.BombEntry.get())]
+        GameFrame(self.mainFrame, self, MineGridArgs)
+        self.master.withdraw()
 
 class GameFrame:
-    def __init__(self, master, width, height, BombNum):
-        print(self)
+    def __init__(self, master, parent, MineGridArgs):
         self.mainFrame = tk.Toplevel(master=master)
+        self.parent = parent
+        self.MineGridArgs = MineGridArgs
+
+        self.InfoFrame = tk.Frame(master=self.mainFrame)
+        self.InfoFrame.pack(fill=tk.X)
+        self.BackButton = tk.Button(master=self.InfoFrame, text="Back", command=self.Back)
+        self.BackButton.pack(side=tk.LEFT)
+        self.RefreshButton = tk.Button(master=self.InfoFrame, text="Refresh", command=self.CreateMineGridFrame)
+        self.RefreshButton.pack(side=tk.RIGHT)
+        self.InfoLabel = tk.Label(master=self.InfoFrame, text=f"Bombs left: {MineGridArgs[2]}")
+        self.InfoLabel.pack(side=tk.TOP)
+
+
+        self.MineGridFrame = tk.Frame(master=self.mainFrame)
+        self.MineGridSubFrame = tk.Frame(master=self.MineGridFrame)
+        self.MineGridInstance = MineGrid(self.MineGridSubFrame, self, *self.MineGridArgs)
+        self.MineGridFrame.pack()
+        self.MineGridSubFrame.pack()
+
+        self.HintButton = tk.Button(master=self.mainFrame, text="Hint", command=self.Hint)
+        self.HintButton.pack()
+
+
+    def CreateMineGridFrame(self):
+        self.InfoLabel["text"] = f"Bombs left: {self.MineGridArgs[2]}"
+        self.MineGridSubFrame.destroy()
+        self.MineGridSubFrame = tk.Frame(master=self.MineGridFrame)
+        self.MineGridInstance = MineGrid(self.MineGridSubFrame, self, *self.MineGridArgs)
+        self.MineGridSubFrame.pack()
+    
+    def Back(self):
+        self.parent.master.deiconify()
+        self.mainFrame.destroy()
+
+    def Hint(self):
+        revealed = np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid])
+        flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
+        adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
+        risk = solve(revealed, flagged, adj)
+
+        
+
+
+        
+
+
+class MineGrid:
+    def __init__(self, master, parent, width, height, BombNum):
+        self.mainFrame = tk.Frame(master=master)
+        self.mainFrame.pack()
+        self.parent = parent
         self.width = width
         self.height = height
         self.BombNum = BombNum
         self.BombLeft = self.BombNum
         self.BombArray = [False]*(width*height)
         self.SafeLeft = width*height-BombNum
+        self.MarkedBombNum = 0
         
 
         for i in range(len(self.BombArray)):
@@ -72,14 +124,14 @@ class GameFrame:
         try:
             return self.CellGrid[y][x]
         except:
-            class CellNotFound(exception):
+            class CellNotFound(Exception):
                 pass
-            raise CellNotFound(f"The coordinate {(x,y)} is not found, the size of the grid is {(self.width+1,self.height+1)}")
+            raise CellNotFound(f"The coordinate {(x,y)} is not found, the size of the grid is {(self.width,self.height)}")
 
     def counter(self):
         self.SafeLeft -= 1
         if self.SafeLeft == 0:
-            print("you win")
+            self.parent.InfoLabel["text"] = "You won!"
 
 class Cell:
     def __init__(self, master, parent, x, y, bomb):
@@ -90,6 +142,7 @@ class Cell:
         self.bomb = bomb
         self.flagged = False
         self.revealed = False
+        self.adj = None
 
         self.frame = tk.Frame(master=self.master, width=30, height=30)
         self.frame.pack(side=tk.LEFT)
@@ -115,7 +168,11 @@ class Cell:
 
         if self.bomb:
             self.button["bg"] = "red"
-            print("you lost")
+            self.parent.parent.InfoLabel["text"] = "You lost!"
+            for x in range(self.parent.width):
+                for y in range(self.parent.height):
+                    if self.parent.get(x,y).bomb:
+                        self.parent.get(x,y).LeftClick()
         else:
             self.parent.counter()
             self.button["bg"] = "green"
@@ -132,12 +189,14 @@ class Cell:
     def RightClick(self, event):
         if self.revealed:
             return
-        
         if self.flagged:
-            self.button["bg"] = "white"
+            self.button["bg"] = "SystemButtonFace"
+            self.parent.MarkedBombNum -= 1
         else:
             self.button["bg"] = "blue"
+            self.parent.MarkedBombNum += 1
         self.flagged = not self.flagged
+        self.parent.parent.InfoLabel["text"] = f"Bombs left: {self.parent.BombNum - self.parent.MarkedBombNum}"
     
 
 
