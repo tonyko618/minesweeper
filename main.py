@@ -80,7 +80,13 @@ class GameWindow:
         revealed = np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid])
         flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
         adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
+
         risk = solve(self.MineGridArgs[2], revealed, flagged, adj)
+        for x in range(self.MineGridArgs[0]):
+            for y in range(self.MineGridArgs[1]):
+                hexadecimal = hex(risk[y,x])[2:]
+                hexadecimal = "#" + hexadecimal*3
+                self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
 
         
 

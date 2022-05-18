@@ -8,6 +8,7 @@
 #255 indicates a cell is definitely a bomb
 
 import numpy as np
+import random as rn
 def solve(TotalBombBUm, revealed, flagged, adj):
     print("-------------------------------------------")
     print("revealed:\n", revealed)
@@ -19,7 +20,9 @@ def solve(TotalBombBUm, revealed, flagged, adj):
     height = len(revealed)
     output = np.zeros(shape=(height, width), dtype=np.int32)
 
-
+    for x in range(width):
+        for y in range(height):
+            output[y,x] = int(rn.random()*255)    
 
 
 
