@@ -164,6 +164,8 @@ class Cell:
         for x in range(self.x-1, self.x+2):
             for y in range(self.y-1, self.y+2):
                 if x>=0 and y>=0 and y<self.parent.height and x<self.parent.width:
+                    if x == self.x and y == self.y:
+                        continue
                     output.append((x,y))
         return output
 
