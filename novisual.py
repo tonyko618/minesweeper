@@ -13,3 +13,5 @@ for i in range(length):
     if BombLeft/(length-i) >= rn.random():
         BombArray[i] = True
         BombLeft -= 1
+solution = BombArray.reshape(height, width)
+
