@@ -84,9 +84,10 @@ class GameWindow:
         risk = solve(self.MineGridArgs[2], revealed, flagged, adj)
         for x in range(self.MineGridArgs[0]):
             for y in range(self.MineGridArgs[1]):
-                hexadecimal = hex(risk[y,x])[2:]
-                hexadecimal = "#" + hexadecimal*3
-                self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
+                if not self.MineGridInstance.get(x,y).revealed:
+                    hexadecimal = hex(risk[y,x])[2:]
+                    hexadecimal = "#" + hexadecimal*3
+                    self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
 
         
 
