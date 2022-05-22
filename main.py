@@ -44,6 +44,8 @@ class GameWindow:
         self.parent = parent
         self.MineGridArgs = MineGridArgs
         self.mainFrame.protocol("WM_DELETE_WINDOW", self.Back)
+        self.won = 0
+        self.lost = 0
 
         self.InfoFrame = tk.Frame(master=self.mainFrame)
         self.InfoFrame.pack(fill=tk.X)
@@ -77,8 +79,6 @@ class GameWindow:
         self.mainFrame.destroy()
 
     def Hint(self):
-        if self.MineGridInstance.status == 2:
-            self.CreateMineGridFrame()
         revealed = np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid])
         flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
         adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
@@ -101,16 +101,21 @@ class GameWindow:
                     hexadecimal = hex(255-risk[y,x])[2:]
                     hexadecimal = "#" + hexadecimal*3
                     self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
-                    if risk[y,x] < min:
-                        min = risk[y,x]
-                        coord = (x,y)
+                    if risk[y,x] <= min:
+                        if (coord[0]-self.MineGridArgs[0]/2)**2 + (coord[1]-self.MineGridArgs[1]/2)**2 > (x-self.MineGridArgs[0]/2)**2 + (y-self.MineGridArgs[1]/2)**2:
+                            min = risk[y,x]
+                            coord = (x,y)
 
                 
                 
         if not moved:
             self.MineGridInstance.get(*coord).LeftClick()
-        if self.MineGridInstance.status != 1:
+        if self.MineGridInstance.status == 0:
+            self.parent.master.after(10, self.Hint)
+        if self.MineGridInstance.status != 0:
+            self.CreateMineGridFrame()
             self.parent.master.after(1000, self.Hint)
+
 
         
 
@@ -140,7 +145,7 @@ class MineGrid:
                 self.BombLeft -= 1
 
         self.SolutionGrid = np.array(self.BombArray).reshape(self.height, self.width)
-        print(self.SolutionGrid)
+        #print(self.SolutionGrid)
 
         self.CellGrid = []
         for i in range(self.height):
@@ -166,6 +171,8 @@ class MineGrid:
         if self.SafeLeft == 0:
             self.parent.InfoLabel["text"] = "You won!"
             self.status = 1
+            self.parent.won += 1
+            print(f"won: {self.parent.won}, lost: {self.parent.lost}")
 
 class Cell:
     def __init__(self, master, parent, x, y, bomb):
@@ -206,10 +213,12 @@ class Cell:
             self.button["bg"] = "red"
             self.parent.parent.InfoLabel["text"] = "You lost!"
             self.parent.status = 2
-            for x in range(self.parent.width):
+            self.parent.parent.lost += 1
+            print(f"won: {self.parent.parent.won}, lost: {self.parent.parent.lost}")
+            """for x in range(self.parent.width):
                 for y in range(self.parent.height):
                     if self.parent.get(x,y).bomb:
-                        self.parent.get(x,y).LeftClick()
+                        self.parent.get(x,y).LeftClick()"""
         else:
             self.parent.counter()
             self.button["bg"] = "green"

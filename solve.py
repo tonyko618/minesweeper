@@ -12,12 +12,13 @@ import random as rn
 
 
 def solve(TotalBomb, BombLeft, revealed, flagged, adj):
-    print("-------------------------------------------")
-    print("revealed:\n", revealed)
-    print("flagged:\n", flagged)
-    print("adj:\n", adj)
-    print("BombLeft: ", BombLeft)
-    print("TotalBomb: ", TotalBomb)
+    if False:
+        print("-------------------------------------------")
+        print("revealed:\n", revealed)
+        print("flagged:\n", flagged)
+        print("adj:\n", adj)
+        print("BombLeft: ", BombLeft)
+        print("TotalBomb: ", TotalBomb)
 
     width = len(revealed[0])
     height = len(revealed)
@@ -67,6 +68,6 @@ def solve(TotalBomb, BombLeft, revealed, flagged, adj):
 
 
 
-    print(output)
+    #print(output)
     return output
 
