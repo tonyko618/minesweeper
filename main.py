@@ -77,6 +77,8 @@ class GameWindow:
         self.mainFrame.destroy()
 
     def Hint(self):
+        if self.MineGridInstance.status == 2:
+            self.CreateMineGridFrame()
         revealed = np.array([np.array([x.revealed for x in y]) for y in self.MineGridInstance.CellGrid])
         flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
         adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
@@ -107,6 +109,8 @@ class GameWindow:
                 
         if not moved:
             self.MineGridInstance.get(*coord).LeftClick()
+        if self.MineGridInstance.status != 1:
+            self.parent.master.after(1000, self.Hint)
 
         
 
@@ -126,6 +130,8 @@ class MineGrid:
         self.BombArray = [False]*(width*height)
         self.SafeLeft = width*height-BombNum
         self.MarkedBombNum = 0
+        #0:ongoing game ,1:won, 2:lost
+        self.status = 0
         
 
         for i in range(len(self.BombArray)):
@@ -159,6 +165,7 @@ class MineGrid:
         self.SafeLeft -= 1
         if self.SafeLeft == 0:
             self.parent.InfoLabel["text"] = "You won!"
+            self.status = 1
 
 class Cell:
     def __init__(self, master, parent, x, y, bomb):
@@ -198,6 +205,7 @@ class Cell:
         if self.bomb:
             self.button["bg"] = "red"
             self.parent.parent.InfoLabel["text"] = "You lost!"
+            self.parent.status = 2
             for x in range(self.parent.width):
                 for y in range(self.parent.height):
                     if self.parent.get(x,y).bomb:
