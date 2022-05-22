@@ -81,13 +81,32 @@ class GameWindow:
         flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
         adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
 
-        risk = solve(self.MineGridInstance.BombNum-self.MineGridInstance.MarkedBombNum, revealed, flagged, adj)
+        risk = solve(self.MineGridInstance.BombNum, self.MineGridInstance.BombNum-self.MineGridInstance.MarkedBombNum, revealed, flagged, adj)
+        moved = False
+        min = 255
+        coord = (0,0)
         for x in range(self.MineGridArgs[0]):
             for y in range(self.MineGridArgs[1]):
                 if not self.MineGridInstance.get(x,y).revealed and not self.MineGridInstance.get(x,y).flagged:
+                    if risk[y,x] == 0:
+                        self.MineGridInstance.get(x,y).LeftClick()
+                        moved = True
+                        continue
+                    if risk[y,x] == 255:
+                        self.MineGridInstance.get(x,y).RightClick()
+                        moved = True
+                        continue
                     hexadecimal = hex(255-risk[y,x])[2:]
                     hexadecimal = "#" + hexadecimal*3
                     self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
+                    if risk[y,x] < min:
+                        min = risk[y,x]
+                        coord = (x,y)
+
+                
+                
+        if not moved:
+            self.MineGridInstance.get(*coord).LeftClick()
 
         
 
@@ -196,11 +215,11 @@ class Cell:
                 for (x, y) in self.neighbour():
                     self.parent.get(x,y).LeftClick()  
 
-    def RightClick(self, event):
+    def RightClick(self, *event):
         if self.revealed:
             return
         if self.flagged:
-            self.button["bg"] = "SystemButtonFace"
+            self.button["bg"] = "white"
             self.parent.MarkedBombNum -= 1
         else:
             self.button["bg"] = "blue"

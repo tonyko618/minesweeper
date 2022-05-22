@@ -11,16 +11,18 @@ import numpy as np
 import random as rn
 
 
-def solve(BombLeft, revealed, flagged, adj):
+def solve(TotalBomb, BombLeft, revealed, flagged, adj):
     print("-------------------------------------------")
     print("revealed:\n", revealed)
     print("flagged:\n", flagged)
     print("adj:\n", adj)
     print("BombLeft: ", BombLeft)
+    print("TotalBomb: ", TotalBomb)
 
     width = len(revealed[0])
     height = len(revealed)
     output = np.zeros(shape=(height, width), dtype=np.int32)
+    output.fill(int(TotalBomb/width/height*255))
   
     def getNeighbour(x, y):
         output = []
@@ -40,7 +42,6 @@ def solve(BombLeft, revealed, flagged, adj):
                 revealedNum = 0
                 flaggedNum = 0
                 for x2, y2 in neighbour:
-                    
                     if revealed[y2,x2]:
                         revealedNum += 1
                     if flagged[y2,x2]:
@@ -49,12 +50,14 @@ def solve(BombLeft, revealed, flagged, adj):
                     continue
                 for x2, y2 in neighbour:
                     if not revealed[y2,x2] and not flagged[y2,x2]:
+                        if not checked[y2,x2]:
+                            output[y2,x2] = 0
                         if checked[y2,x2] and not output[y2,x2]:
                             pass
                         else:
-                            temp = np.sqrt((adj[y,x]-flaggedNum)/(len(neighbour)-revealedNum-flaggedNum))*255
+                            temp = (adj[y,x]-flaggedNum)/(len(neighbour)-revealedNum-flaggedNum)*255
                             if not temp:
-                                pass
+                                output[y2,x2] = 0
                             else:
                                 output[y2,x2] = max(output[y2,x2], temp)
                             
