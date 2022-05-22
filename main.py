@@ -81,12 +81,13 @@ class GameWindow:
         flagged = np.array([np.array([x.flagged for x in y]) for y in self.MineGridInstance.CellGrid])
         adj = np.array([np.array([x.adj for x in y]) for y in self.MineGridInstance.CellGrid])
 
-        risk = solve(self.MineGridArgs[2], revealed, flagged, adj)
+        risk = solve(self.MineGridInstance.BombNum-self.MineGridInstance.MarkedBombNum, revealed, flagged, adj)
         for x in range(self.MineGridArgs[0]):
             for y in range(self.MineGridArgs[1]):
-                hexadecimal = hex(risk[y,x])[2:]
-                hexadecimal = "#" + hexadecimal*3
-                self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
+                if not self.MineGridInstance.get(x,y).revealed and not self.MineGridInstance.get(x,y).flagged:
+                    hexadecimal = hex(255-risk[y,x])[2:]
+                    hexadecimal = "#" + hexadecimal*3
+                    self.MineGridInstance.get(x,y).button["bg"] = hexadecimal
 
         
 
@@ -113,8 +114,8 @@ class MineGrid:
                 self.BombArray[i] = True
                 self.BombLeft -= 1
 
-        self.TFGrid = np.array(self.BombArray).reshape(self.height, self.width)
-        print(self.TFGrid)
+        self.SolutionGrid = np.array(self.BombArray).reshape(self.height, self.width)
+        print(self.SolutionGrid)
 
         self.CellGrid = []
         for i in range(self.height):
@@ -122,7 +123,7 @@ class MineGrid:
             self.frame = tk.Frame(master=self.mainFrame)
             self.frame.pack()
             for j in range(self.width):
-                self.CellArray.append(Cell(master=self.frame, parent=self, x=j, y=i, bomb=self.TFGrid[i][j]))
+                self.CellArray.append(Cell(master=self.frame, parent=self, x=j, y=i, bomb=self.SolutionGrid[i][j]))
             self.CellGrid.append(self.CellArray)
         
 
@@ -163,6 +164,8 @@ class Cell:
         for x in range(self.x-1, self.x+2):
             for y in range(self.y-1, self.y+2):
                 if x>=0 and y>=0 and y<self.parent.height and x<self.parent.width:
+                    if x == self.x and y == self.y:
+                        continue
                     output.append((x,y))
         return output
 
