@@ -2,6 +2,7 @@ import numpy as np
 import random as rn
 import tkinter as tk
 from solve import solve
+from solve2 import solve2
 
 class MainWindow:
     def __init__(self, master):
@@ -106,15 +107,30 @@ class GameWindow:
                             min = risk[y,x]
                             coord = (x,y)
 
-                
-                
         if not moved:
+            print("using alternative algorithm")
+            risk = solve(self.MineGridInstance.BombNum, self.MineGridInstance.BombNum-self.MineGridInstance.MarkedBombNum, revealed, flagged, adj)
+            for x in range(self.MineGridArgs[0]):
+                for y in range(self.MineGridArgs[1]):
+                    if not self.MineGridInstance.get(x,y).revealed and not self.MineGridInstance.get(x,y).flagged:
+                        if risk[y,x] == 0:
+                            self.MineGridInstance.get(x,y).LeftClick()
+                            moved = True
+                            continue
+                        if risk[y,x] == 255:
+                            self.MineGridInstance.get(x,y).RightClick()
+                            moved = True
+                            continue
+                        
+
+                
+        """if not moved:
             self.MineGridInstance.get(*coord).LeftClick()
         if self.MineGridInstance.status == 0:
             self.parent.master.after(10, self.Hint)
         if self.MineGridInstance.status != 0:
             self.CreateMineGridFrame()
-            self.parent.master.after(1000, self.Hint)
+            self.parent.master.after(1000, self.Hint)"""
 
 
         
