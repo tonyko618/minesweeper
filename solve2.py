@@ -11,7 +11,7 @@ import numpy as np
 import random as rn
 
 
-def solve(TotalBomb, BombLeft, revealed, flagged, adj):
+def solve2(TotalBomb, BombLeft, revealed, flagged, adj):
     if False:
         print("-------------------------------------------")
         print("revealed:\n", revealed)

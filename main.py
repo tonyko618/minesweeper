@@ -109,7 +109,7 @@ class GameWindow:
 
         if not moved:
             print("using alternative algorithm")
-            risk = solve(self.MineGridInstance.BombNum, self.MineGridInstance.BombNum-self.MineGridInstance.MarkedBombNum, revealed, flagged, adj)
+            risk = solve2(self.MineGridInstance.BombNum, self.MineGridInstance.BombNum-self.MineGridInstance.MarkedBombNum, revealed, flagged, adj)
             for x in range(self.MineGridArgs[0]):
                 for y in range(self.MineGridArgs[1]):
                     if not self.MineGridInstance.get(x,y).revealed and not self.MineGridInstance.get(x,y).flagged:
